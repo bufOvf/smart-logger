@@ -1,4 +1,4 @@
-logs/
-image/
+logs/*
+image/*
 .venv/
 .env
