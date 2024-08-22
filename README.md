@@ -1,5 +1,7 @@
 # smart-logger
 
+_activity logger: screenshot -> vllm analysis -> log file -> daily timeline_
+
 todo.
 - [x] Implement a function to take a screenshot
 - [x] Set up dirs(temp images, daily logs)
