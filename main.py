@@ -219,7 +219,7 @@ if __name__ == "__main__":
                         while True:
                             action = input("> '1' to save, '2' to regenerate: ")
                             if action == '1':
-                                save_day_timeline(date, day_timeline_content)
+                                save_day_timeline(date, day_timeline_content) #TODO: make it replace old file
                                 break
                             elif action == '2':
                                 print(generate_timeline(date))
