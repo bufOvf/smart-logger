@@ -8,6 +8,7 @@ todo.
 - [x] Implement a function to analyze the screenshot using gpt-4o-mini.
 - [x] Log the analysis to a text file.
 - [x] Implement a loop to screenshot, analyze, and log analysis.
-- [ ] Implement a function to summarise logs in a day a create a organised timeline of activity
+- [x] Implement a function to summarise logs in a day a create a organised timeline of activity
+- [ ] Implement option to save the daily timeline to a file in logs or regenerate
 
  
