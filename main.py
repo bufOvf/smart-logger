@@ -11,7 +11,7 @@ import base64
 load_dotenv()
 
 api_key = os.getenv("OPENAI_API_KEY")
-INTERVAL_MINUTES = 0.05
+INTERVAL_MINUTES = 3 # DEFAULT
 LOG_DIR = os.getenv("LOG_DIR")
 
 sys_prompt_analyze = """
@@ -20,34 +20,37 @@ You are an AI assistant specialized in analyzing screenshots of computer activit
 1. Primary Application/Website:
    - Identify the main application or website open.
    - If multiple windows are visible, prioritize the one in focus or occupying the most screen space.
+   - Note specific names of applications, games, or websites when visible.
 
 2. Activity Description:
    - Describe the main task or content visible (e.g., writing an email, browsing a news site, coding in Python).
    - Identify specific features or sections of the application in use (e.g., composing a new email, scrolling through a feed, debugging code).
+   - Include titles of videos, names of projects, or specific games being played when this information is visible.
 
 3. Context and Details:
-   - Note any other relevant applications or tabs visible that provide context to the user's activity.
+   - Note any other relevant applications or tabs visible that provide context to the activity.
    - Identify the general category of the activity (e.g., productivity, entertainment, communication, learning).
    - Mention any visible time indicators or progress bars that suggest duration or completion of tasks.
 
 4. User Interface Elements:
-   - Note any prominent UI elements that indicate user actions (e.g., dialog boxes, dropdown menus, toolbars).
-   - Identify if the user is actively inputting data, viewing content, or in a waiting/loading state.
+   - Note any prominent UI elements that indicate actions (e.g., dialog boxes, dropdown menus, toolbars).
+   - Identify if there's active input, content viewing, or a waiting/loading state.
 
 5. Multi-tasking Indicators:
    - If visible, mention any background processes, notifications, or secondary windows that suggest parallel activities.
 
 Guidelines:
 - Keep your responses concise, ideally within 2-3 sentences.
-- Prioritize accuracy over speculation. If something is unclear, state that it's not fully visible or determinable.
+- Make confident, direct observations about what is clearly visible in the screenshot.
+- If something is unclear or not fully visible, simply omit it rather than speculating.
 - Do not include any personal information, names, or sensitive data that might be visible in the screenshot.
-- Use neutral language and focus on observable facts rather than making judgments about the user's behavior.
-- If the screenshot shows a transitional state (e.g., app launching, page loading), mention this as it provides context about the user's workflow.
+- Use neutral language and focus on observable facts rather than making judgments about behavior.
+- If the screenshot shows a transitional state (e.g., app launching, page loading), mention this as it provides context about the workflow.
 
 Example Response:
-"The screenshot shows Visual Studio Code in focus, with Python code visible in the main editor. The user appears to be debugging, as evidenced by the debug console open at the bottom of the screen. A browser window is partially visible in the background, suggesting the user may be referencing documentation while coding."
+"Visual Studio Code is in focus, displaying a Python file named 'data_analysis.py'. The debug console is open at the bottom of the screen, indicating active debugging. A browser window in the background shows a Stack Overflow page titled 'Python Pandas DataFrame filtering', suggesting simultaneous code troubleshooting and documentation reference."
 
-Remember, your analysis should give a clear, privacy-respecting snapshot of the user's current activity, providing valuable context for activity tracking and productivity analysis.
+Remember, your analysis should give a clear, privacy-respecting snapshot of the current activity, providing valuable context for activity tracking and productivity analysis. Include specific titles, project names, or game names when they are clearly visible and relevant to understanding the activity.
 """
 
 sys_prompt_timeline = """
@@ -169,7 +172,7 @@ def generate_timeline(date):
                 {
                     "role": "user",
                     "content": [
-                        {"type": "text", "text": f"The following is the user's activity log for {date}:\n{log_content}"},
+                        {"type": "text", "text": f"The following is the user's activity log for {date} based on screenshots(do not explicitly say):\n{log_content}"},
                     ],
                 }
             ],
@@ -192,9 +195,11 @@ if __name__ == "__main__":
         while True:
             action = input("> '1' to Start logging, '2' to Generate timeline: ")
             if action == '1':
+                option = input("> Enter interval (in minutes) or Enter to use default: ")
+                if option:
+                    INTERVAL_MINUTES = int(option)
                 print(f"----------------\nLogging Started. \nInterval: {INTERVAL_MINUTES} minutes. \nLog Dir: /{LOG_DIR}\n----------------\n")
                 while True:
-                    time.sleep(INTERVAL_MINUTES * 60)
                     base64_image = take_screenshot()
                     analysis = analyze_image(base64_image)
                     if analysis:
@@ -202,30 +207,32 @@ if __name__ == "__main__":
                         print(f"Logged activity at {datetime.now().strftime('%H:%M:%S')}")
                     else:
                         print(f"Logging Failed!")
+                    time.sleep(INTERVAL_MINUTES * 60)
                     
 
             elif action == '2':
-                action = input("> '1' to list available logs, or Enter date (YYYY-MM-DD): ")
-                if action == '1':
-                    print(f"> Available logs: ")
-                    for file in os.listdir(LOG_DIR):
-                        if file.endswith("_activity_log.txt"):
-                            print(file)
-                else:
-                    date = action
-                    day_timeline_content = generate_timeline(date)
-                    if day_timeline_content:
-                        print(day_timeline_content)
-                        while True:
-                            action = input("> '1' to save, '2' to regenerate: ")
-                            if action == '1':
-                                save_day_timeline(date, day_timeline_content) #TODO: make it replace old file
-                                break
-                            elif action == '2':
-                                print(generate_timeline(date))
+                while True:
+                    action = input("> '1' to list available logs, or Enter date (YYYY-MM-DD): ")
+                    if action == '1':
+                        print(f"> Available logs: ")
+                        for file in os.listdir(LOG_DIR):
+                            if file.endswith("_activity_log.txt"):
+                                print(file)
                     else:
-                        print("Error generating timeline")
-                        pass
+                        date = action
+                        day_timeline_content = generate_timeline(date)
+                        if day_timeline_content:
+                            print(day_timeline_content)
+                            while True:
+                                action = input("> '1' to save, '2' to regenerate: ")
+                                if action == '1':
+                                    save_day_timeline(date, day_timeline_content) #TODO: make it replace old file
+                                    break
+                                elif action == '2':
+                                    print(generate_timeline(date))
+                        else:
+                            print("Error generating timeline")
+                            pass
                     
                         
                     
