@@ -1,6 +1,6 @@
 # smart-logger
 
-_activity logger: screenshot -> broard vllm analysis and delete screenshot -> log file -> generate daily timeline_
+_activity logger: screenshot -> broad vllm analysis and delete screenshot -> log file -> generate daily timeline_
 
 todo.
 - [x] Implement a function to take a screenshot
