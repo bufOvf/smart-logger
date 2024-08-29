@@ -10,5 +10,5 @@ todo.
 - [x] Implement a loop to screenshot, analyze, and log analysis.
 - [x] Implement a function to summarise logs in a day a create a organised timeline of activity
 - [ ] Implement option to save the daily timeline to a file in logs or regenerate
-- [ ] switch from gpt4o-mini to groq's free llama70b
+- [ ] switch to local llm
  
